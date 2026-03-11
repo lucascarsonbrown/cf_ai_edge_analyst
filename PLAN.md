@@ -88,48 +88,48 @@ cf_ai_edge_analyst/
 ## Implementation Tasks
 
 ### Phase 1 — Foundation
-- [ ] `wrangler.jsonc` — Worker config with all bindings
-- [ ] `package.json` + `tsconfig.json` — project setup
-- [ ] `.gitignore`
-- [ ] `src/types.ts` — all shared TypeScript types
-- [ ] `src/config.ts` — constants (model names, supported tickers, etc.)
+- [x] `wrangler.jsonc` — Worker config with all bindings
+- [x] `package.json` + `tsconfig.json` — project setup
+- [x] `.gitignore`
+- [x] `src/types.ts` — all shared TypeScript types
+- [x] `src/config.ts` — constants (model names, supported tickers, etc.)
 
 ### Phase 2 — Utilities
-- [ ] `src/utils/ids.ts` — reportId generation
-- [ ] `src/utils/responses.ts` — JSON response helpers + CORS headers
-- [ ] `src/utils/validation.ts` — input validation (ticker, message)
-- [ ] `src/utils/time.ts` — ISO timestamp helpers
+- [x] `src/utils/ids.ts` — reportId generation
+- [x] `src/utils/responses.ts` — JSON response helpers + CORS headers
+- [x] `src/utils/validation.ts` — input validation (ticker, message)
+- [x] `src/utils/time.ts` — ISO timestamp helpers
 
 ### Phase 3 — Core Library
-- [ ] `src/lib/ai.ts` — Workers AI wrapper with model fallback logic
-- [ ] `src/lib/companyContext.ts` — Alpha Vantage fetch + fallback context
-- [ ] `src/lib/memoBuilder.ts` — one function per memo section
+- [x] `src/lib/ai.ts` — Workers AI wrapper with model fallback logic
+- [x] `src/lib/companyContext.ts` — Alpha Vantage fetch + fallback context
+- [x] `src/lib/memoBuilder.ts` — one function per memo section
 
 ### Phase 4 — Prompts
-- [ ] `src/prompts.ts` — all LLM prompt templates (overview, bull, bear, risks, conclusion, chat)
+- [x] `src/prompts.ts` — all LLM prompt templates (overview, bull, bear, risks, conclusion, chat)
 
 ### Phase 5 — Durable Object
-- [ ] `src/durable/ReportStateDO.ts` — full DO class with state, sections, chat history
+- [x] `src/durable/ReportStateDO.ts` — full DO class with state, sections, chat history
 
 ### Phase 6 — Workflow
-- [ ] `src/workflows/reportWorkflow.ts` — 8-step WorkflowEntrypoint
+- [x] `src/workflows/reportWorkflow.ts` — 8-step WorkflowEntrypoint
 
 ### Phase 7 — Routes + Entry Point
-- [ ] `src/routes/analyze.ts` — POST /api/analyze
-- [ ] `src/routes/report.ts` — GET /api/report/:id
-- [ ] `src/routes/chat.ts` — POST /api/chat/:id
-- [ ] `src/index.ts` — Worker entry point + route dispatch
+- [x] `src/routes/analyze.ts` — POST /api/analyze
+- [x] `src/routes/report.ts` — GET /api/report/:id
+- [x] `src/routes/chat.ts` — POST /api/chat/:id
+- [x] `src/index.ts` — Worker entry point + route dispatch
 
 ### Phase 8 — Frontend
-- [ ] `frontend/config.js` — API_BASE_URL config
-- [ ] `frontend/styles.css` — clean, minimal styling
-- [ ] `frontend/index.html` — page structure
-- [ ] `frontend/app.js` — all UI logic (form, polling, memo render, chat)
+- [x] `frontend/config.js` — API_BASE_URL config
+- [x] `frontend/styles.css` — clean, minimal styling
+- [x] `frontend/index.html` — page structure
+- [x] `frontend/app.js` — all UI logic (form, polling, memo render, chat)
 
 ### Phase 9 — Documentation
-- [ ] `README.md` — full project docs (setup, deploy, architecture, API)
-- [ ] `PROMPTS.md` — all prompt templates with purpose/context notes
-- [ ] `examples/sample-output.md` — example generated memo for NVDA
+- [x] `README.md` — full project docs (setup, deploy, architecture, API)
+- [x] `PROMPTS.md` — all prompt templates with purpose/context notes
+- [x] `examples/sample-output.md` — example generated memo for NVDA
 
 ---
 
@@ -163,3 +163,4 @@ Step 8: Synthesize Final Memo            → status: complete
 | Date | Milestone |
 |---|---|
 | 2026-03-10 | Planning complete, PLAN.md created |
+| 2026-03-11 | Full scaffold complete — all phases 1–9 done, repo pushed to GitHub |
