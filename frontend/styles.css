@@ -361,6 +361,34 @@ textarea {
   flex: 1;
 }
 
+/* ─── Data source banner ───────────────────────────────────────────────────── */
+
+.data-banner {
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.data-banner--none {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+.data-banner--partial {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid var(--warning);
+  color: var(--warning);
+}
+
+.data-banner--full {
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid var(--success);
+  color: var(--success);
+}
+
 /* ─── Error banner ─────────────────────────────────────────────────────────── */
 
 #error-banner {

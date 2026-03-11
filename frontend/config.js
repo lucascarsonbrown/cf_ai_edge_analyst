@@ -1,11 +1,10 @@
 /**
  * API configuration.
- * Update API_BASE_URL to your deployed Worker URL before deploying to Pages.
- *
- * Local dev:  "http://localhost:8787"
- * Production: "https://cf-ai-edge-analyst.<your-subdomain>.workers.dev"
+ * API_BASE_URL is empty so all requests use relative URLs.
+ * This works automatically in both local dev (wrangler dev) and production
+ * since the frontend is served from the same Worker as the API.
  */
 const CONFIG = {
-  API_BASE_URL: "http://localhost:8787",
+  API_BASE_URL: "",
   POLL_INTERVAL_MS: 2000,
 };

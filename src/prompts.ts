@@ -1,58 +1,52 @@
+import { formatContextForPrompt } from "./lib/companyContext";
 import type { CompanyContext, ChatMessage, ReportSections } from "./types";
 
 // ─── Shared system persona ────────────────────────────────────────────────────
 
 const ANALYST_PERSONA = `You are a senior equity research analyst. Your writing is concise, balanced, and analytical.
 You use markdown formatting with clear headings and bullet points.
-You do not fabricate specific financial metrics unless they are provided to you.
-You reason from the context given and stay internally consistent.`;
+You ground your analysis in the quantitative and qualitative data provided — do not fabricate metrics.
+You reason from the context given and stay internally consistent across sections.`;
 
 // ─── Section prompts ──────────────────────────────────────────────────────────
 
 export function overviewPrompt(ctx: CompanyContext, focusPrompt?: string): string {
   return `${ANALYST_PERSONA}
 
-Company context:
-- Ticker: ${ctx.ticker}
-- Name: ${ctx.name}
-- Sector: ${ctx.sector}
-- Industry: ${ctx.industry}
-- Description: ${ctx.description}
-${ctx.marketCap ? `- Market Cap: ${ctx.marketCap}` : ""}
-${ctx.peRatio ? `- P/E Ratio: ${ctx.peRatio}` : ""}
-${ctx.weekHigh52 ? `- 52-Week High: ${ctx.weekHigh52}` : ""}
-${ctx.weekLow52 ? `- 52-Week Low: ${ctx.weekLow52}` : ""}
-${ctx.analystTarget ? `- Analyst Target Price: ${ctx.analystTarget}` : ""}
-${focusPrompt ? `\nAnalyst focus: ${focusPrompt}` : ""}
+${formatContextForPrompt(ctx)}
+${focusPrompt ? `\nANALYST FOCUS: ${focusPrompt}` : ""}
 
 Write a ## Company Overview section for an investment memo on ${ctx.ticker}.
 Cover what the company does, its market position, and why it matters to investors right now.
+Reference specific data points from the context above where relevant (revenue, market cap, sector trends).
 Be concise — 3 to 5 bullet points or a short paragraph. Use markdown.`;
 }
 
 export function bullCasePrompt(ctx: CompanyContext, overview: string, focusPrompt?: string): string {
   return `${ANALYST_PERSONA}
 
-You are writing a section of an investment memo for ${ctx.ticker} (${ctx.name}).
+${formatContextForPrompt(ctx)}
+${focusPrompt ? `\nANALYST FOCUS: ${focusPrompt}` : ""}
 
 Company Overview (already written):
 ${overview}
-${focusPrompt ? `\nAnalyst focus: ${focusPrompt}` : ""}
 
 Write a ## Bull Case section. Present the 3–4 strongest reasons an investor would be optimistic.
-Be specific to this company. Use bullet points. Use markdown.`;
+Back each point with specific evidence from the data above — analyst ratings, earnings beats, revenue growth, margins, or news.
+Be specific. Use bullet points. Use markdown.`;
 }
 
 export function bearCasePrompt(ctx: CompanyContext, overview: string, focusPrompt?: string): string {
   return `${ANALYST_PERSONA}
 
-You are writing a section of an investment memo for ${ctx.ticker} (${ctx.name}).
+${formatContextForPrompt(ctx)}
+${focusPrompt ? `\nANALYST FOCUS: ${focusPrompt}` : ""}
 
 Company Overview (already written):
 ${overview}
-${focusPrompt ? `\nAnalyst focus: ${focusPrompt}` : ""}
 
 Write a ## Bear Case section. Present the 3–4 strongest reasons an investor would be skeptical or cautious.
+Reference valuation multiples, debt levels, earnings misses, or concerning news items from the data above.
 Be specific and honest. Use bullet points. Use markdown.`;
 }
 
@@ -64,17 +58,18 @@ export function keyRisksPrompt(
 ): string {
   return `${ANALYST_PERSONA}
 
-You are writing a section of an investment memo for ${ctx.ticker} (${ctx.name}).
+${formatContextForPrompt(ctx)}
+${focusPrompt ? `\nANALYST FOCUS: ${focusPrompt}` : ""}
 
 Bull Case (already written):
 ${bullCase}
 
 Bear Case (already written):
 ${bearCase}
-${focusPrompt ? `\nAnalyst focus: ${focusPrompt}` : ""}
 
-Write a ## Key Risks section. List the top 3–5 risks an investor should understand before taking a position.
-Include both company-specific and macro/sector risks where relevant. Use bullet points. Use markdown.`;
+Write a ## Key Risks section. List the top 3–5 risks an investor must understand before taking a position.
+Include both company-specific risks (debt/equity ratio, earnings volatility, recent 8-K filings) and macro/sector risks.
+Ground each risk in the data provided. Use bullet points. Use markdown.`;
 }
 
 export function conclusionPrompt(
@@ -87,7 +82,8 @@ export function conclusionPrompt(
 ): string {
   return `${ANALYST_PERSONA}
 
-You are finishing an investment memo for ${ctx.ticker} (${ctx.name}).
+${formatContextForPrompt(ctx)}
+${focusPrompt ? `\nANALYST FOCUS: ${focusPrompt}` : ""}
 
 Previously written sections:
 ## Company Overview
@@ -101,16 +97,16 @@ ${bearCase}
 
 ## Key Risks
 ${keyRisks}
-${focusPrompt ? `\nAnalyst focus: ${focusPrompt}` : ""}
 
 Write two final sections:
 
 ## What to Watch
-List 3–4 specific catalysts, data points, or events investors should monitor in the next 1–2 quarters.
+List 3–4 specific catalysts, data points, or upcoming events investors should monitor.
+Reference upcoming earnings periods, recent filings, or news themes from the data above.
 
 ## Bottom Line
-Write 2–4 sentences summarizing your overall view. Be direct. Do not be hypey.
-What kind of investor should be interested, and at what conviction level?
+Write 2–4 sentences with a direct, balanced verdict. Reference the analyst consensus and valuation context.
+What kind of investor should be interested, and at what conviction level? Do not be hypey.
 
 Use markdown.`;
 }
@@ -122,8 +118,8 @@ export function finalMemoPrompt(
 ): string {
   return `${ANALYST_PERSONA}
 
-Assemble the following sections into a single clean, well-formatted investment memo for ${ctx.ticker}.
-Ensure consistent tone and flow. Do not add new analysis — just refine transitions and ensure the memo reads as one coherent document.
+Assemble the following sections into a single clean, well-formatted investment memo for ${ctx.ticker} (${ctx.name}).
+Ensure consistent tone and flow. Do not add new analysis — refine transitions only.
 ${focusPrompt ? `\nAnalyst focus throughout: ${focusPrompt}` : ""}
 
 ## Company Overview
@@ -144,7 +140,9 @@ ${sections.whatToWatch}
 ## Bottom Line
 ${sections.bottomLine}
 
-Return the full assembled memo in clean markdown. Start with a top-level heading: # ${ctx.ticker} — Investment Memo`;
+Return the full assembled memo in clean markdown.
+Start with: # ${ctx.ticker} — Investment Memo
+Include a one-line italicized subtitle with the sector and data sources used: _${ctx.sector} | Sources: ${ctx.dataSources.join(", ")}_`;
 }
 
 // ─── Chat prompt ──────────────────────────────────────────────────────────────
@@ -172,5 +170,5 @@ ${finalMemo}
 ${history.length > 0 ? `Prior conversation:\n${historyText}\n` : ""}
 User: ${userMessage}
 
-Respond as the analyst. Be concise and direct. Reference the memo where relevant. Use markdown if helpful.`;
+Respond as the analyst. Be concise and direct. Reference specific data points from the memo where relevant. Use markdown if helpful.`;
 }

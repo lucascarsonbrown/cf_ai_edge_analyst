@@ -45,9 +45,47 @@ export type ReportState = {
   createdAt: string;
   updatedAt: string;
   error?: string;
+  // Populated after context fetch — tells the frontend which data sources were available
+  dataSources?: string[];
 };
 
-// ─── Company context (built from Alpha Vantage or fallback) ──────────────────
+// ─── Company context sub-types ────────────────────────────────────────────────
+
+export type AnalystRatings = {
+  strongBuy: number;
+  buy: number;
+  hold: number;
+  sell: number;
+  strongSell: number;
+  period: string;
+};
+
+export type PriceTarget = {
+  mean: string;
+  high: string;
+  low: string;
+  median: string;
+};
+
+export type NewsItem = {
+  headline: string;
+  source: string;
+  datetime: string;
+};
+
+export type EarningsSurprise = {
+  period: string;       // e.g. "2024-10-27"
+  actual: number;
+  estimate: number;
+  surprisePercent: number;
+};
+
+export type RecentFiling = {
+  type: string;         // "10-K", "10-Q", "8-K"
+  date: string;
+};
+
+// ─── Combined company context ─────────────────────────────────────────────────
 
 export type CompanyContext = {
   ticker: string;
@@ -55,12 +93,37 @@ export type CompanyContext = {
   sector: string;
   industry: string;
   description: string;
+
+  // ── Alpha Vantage ──────────────────────────────────────────────────────────
   marketCap?: string;
-  peRatio?: string;
+  peRatioAV?: string;
   weekHigh52?: string;
   weekLow52?: string;
-  analystTarget?: string;
-  source: "alphavantage" | "fallback";
+  analystTargetAV?: string;
+
+  // ── Finnhub ────────────────────────────────────────────────────────────────
+  analystRatings?: AnalystRatings;
+  priceTarget?: PriceTarget;
+  recentNews?: NewsItem[];
+  earningsSurprises?: EarningsSurprise[];
+
+  // ── Financial Modeling Prep ────────────────────────────────────────────────
+  revenueTTM?: string;
+  netIncomeTTM?: string;
+  epsTTM?: string;
+  revenueGrowthYoY?: string;
+  netMargin?: string;
+  evToEbitda?: string;
+  priceToSales?: string;
+  freeCashFlowTTM?: string;
+  debtToEquity?: string;
+  returnOnEquity?: string;
+
+  // ── SEC EDGAR ──────────────────────────────────────────────────────────────
+  recentFilings?: RecentFiling[];
+
+  // ── Meta ──────────────────────────────────────────────────────────────────
+  dataSources: string[];   // which sources returned data successfully
 };
 
 // ─── API request / response shapes ───────────────────────────────────────────
@@ -101,7 +164,10 @@ export type WorkflowParams = {
 
 export interface Env {
   AI: Ai;
+  ASSETS: Fetcher;
   REPORT_STATE: DurableObjectNamespace;
   REPORT_WORKFLOW: Workflow;
   ALPHA_VANTAGE_API_KEY: string;
+  FINNHUB_API_KEY: string;
+  FMP_API_KEY: string;
 }

@@ -6,6 +6,13 @@ import { ReportStateDO } from "./durable/ReportStateDO";
 import { ReportWorkflow } from "./workflows/reportWorkflow";
 import type { Env } from "./types";
 
+// Augment Env with the static assets binding added in wrangler.jsonc
+declare module "./types" {
+  interface Env {
+    ASSETS: Fetcher;
+  }
+}
+
 // Re-export Durable Object and Workflow classes so Cloudflare can bind them
 export { ReportStateDO, ReportWorkflow };
 
@@ -43,6 +50,7 @@ export default {
       });
     }
 
-    return errorResponse("Not found", "NOT_FOUND", 404);
+    // Fall through to static frontend assets (index.html, styles.css, app.js)
+    return env.ASSETS.fetch(request);
   },
 };

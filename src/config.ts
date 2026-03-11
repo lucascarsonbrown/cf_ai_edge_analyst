@@ -10,9 +10,13 @@ export const MAX_TOKENS_MEMO = 1200;
 // Max tokens for chat reply
 export const MAX_TOKENS_CHAT = 500;
 
-// ─── Alpha Vantage ────────────────────────────────────────────────────────────
+// ─── Data source base URLs ────────────────────────────────────────────────────
 
 export const ALPHA_VANTAGE_BASE = "https://www.alphavantage.co/query";
+export const FINNHUB_BASE = "https://finnhub.io/api/v1";
+export const FMP_BASE = "https://financialmodelingprep.com/api/v3";
+export const EDGAR_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json";
+export const EDGAR_SUBMISSIONS_BASE = "https://data.sec.gov/submissions";
 
 // ─── Supported tickers (used only for display hints, not for gating) ─────────
 

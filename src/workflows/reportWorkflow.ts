@@ -69,7 +69,19 @@ export class ReportWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
       // ── Step 2: Fetch company context ─────────────────────────────────────
       const ctx = await step.do("fetch-context", async () => {
         await setStatus("fetching_context");
-        return getCompanyContext(ticker, this.env.ALPHA_VANTAGE_API_KEY);
+        const context = await getCompanyContext(
+          ticker,
+          this.env.ALPHA_VANTAGE_API_KEY,
+          this.env.FINNHUB_API_KEY,
+          this.env.FMP_API_KEY
+        );
+        // Persist which data sources responded so the frontend can warn the user
+        const stub = getStub();
+        await stub.fetch("https://do/set-datasources", {
+          method: "POST",
+          body: JSON.stringify({ dataSources: context.dataSources }),
+        });
+        return context;
       });
 
       // ── Step 3: Generate overview ─────────────────────────────────────────

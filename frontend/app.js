@@ -33,6 +33,7 @@ const chatHistory   = document.getElementById("chat-history");
 const chatInput     = document.getElementById("chat-input");
 const chatSendBtn   = document.getElementById("chat-send-btn");
 const errorBanner   = document.getElementById("error-banner");
+const dataBanner    = document.getElementById("data-banner");
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
@@ -147,6 +148,11 @@ function showStatusPanel() {
 }
 
 function updateStatus(report) {
+  // Show data source banner once context has been fetched
+  if (report.dataSources !== undefined) {
+    updateDataBanner(report.dataSources);
+  }
+
   const { status } = report;
 
   // Dot state
@@ -233,6 +239,41 @@ function appendMessage(role, content) {
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
+// ─── Data source banner ───────────────────────────────────────────────────────
+
+const ALL_SOURCES = ["Alpha Vantage", "Finnhub", "Financial Modeling Prep", "SEC EDGAR"];
+
+function updateDataBanner(dataSources) {
+  if (!dataBanner) return;
+
+  if (dataSources.length === 0) {
+    dataBanner.className = "data-banner data-banner--none";
+    dataBanner.innerHTML = `
+      <strong>⚠ No market data available.</strong>
+      All data sources failed or API keys are missing. The memo was generated using general reasoning only — no real financials, analyst ratings, or news were used.
+    `;
+    dataBanner.style.display = "block";
+    return;
+  }
+
+  const missing = ALL_SOURCES.filter((s) => !dataSources.includes(s));
+  if (missing.length > 0) {
+    dataBanner.className = "data-banner data-banner--partial";
+    dataBanner.innerHTML = `
+      <strong>⚠ Partial data.</strong>
+      Sources used: ${dataSources.join(", ")}.
+      Missing: <em>${missing.join(", ")}</em>. Analysis may lack ${missing.includes("Finnhub") ? "analyst ratings/news" : ""}${missing.includes("Financial Modeling Prep") ? " financial metrics" : ""}${missing.includes("SEC EDGAR") ? " SEC filings" : ""}.
+    `;
+    dataBanner.style.display = "block";
+    return;
+  }
+
+  // All sources present
+  dataBanner.className = "data-banner data-banner--full";
+  dataBanner.innerHTML = `<strong>✓ Full data.</strong> Sourced from: ${dataSources.join(", ")}.`;
+  dataBanner.style.display = "block";
+}
+
 // ─── Error ────────────────────────────────────────────────────────────────────
 
 function showError(msg) {
@@ -253,6 +294,7 @@ function resetUI() {
   statusPanel.style.display = "none";
   memoPanel.style.display = "none";
   chatPanel.style.display = "none";
+  if (dataBanner) dataBanner.style.display = "none";
   chatHistory.innerHTML = "";
   memoContent.innerHTML = "";
   renderProgressSteps(null);

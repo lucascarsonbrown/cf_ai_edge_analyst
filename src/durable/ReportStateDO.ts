@@ -35,6 +35,8 @@ export class ReportStateDO implements DurableObject {
         return this.handleAppendChat(request);
       case "set-error":
         return this.handleSetError(request);
+      case "set-datasources":
+        return this.handleSetDataSources(request);
       default:
         return new Response("Not found", { status: 404 });
     }
@@ -114,6 +116,17 @@ export class ReportStateDO implements DurableObject {
 
     report.status = "error";
     report.error = error;
+    report.updatedAt = now();
+    await this.state.storage.put("report", report);
+    return this.jsonResponse({ ok: true });
+  }
+
+  private async handleSetDataSources(request: Request): Promise<Response> {
+    const { dataSources } = (await request.json()) as { dataSources: string[] };
+    const report = await this.getReport();
+    if (!report) return new Response("Report not found", { status: 404 });
+
+    report.dataSources = dataSources;
     report.updatedAt = now();
     await this.state.storage.put("report", report);
     return this.jsonResponse({ ok: true });

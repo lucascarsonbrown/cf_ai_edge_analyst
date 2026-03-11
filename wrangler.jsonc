@@ -4,6 +4,12 @@
   "compatibility_date": "2025-03-10",
   "compatibility_flags": ["nodejs_compat"],
 
+  // Serve the frontend directory as static assets from the same Worker.
+  // Requests that don't match an API route fall through to these files.
+  "assets": {
+    "directory": "./frontend"
+  },
+
   // Workers AI binding
   "ai": {
     "binding": "AI"
@@ -32,7 +38,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["ReportStateDO"]
+      "new_sqlite_classes": ["ReportStateDO"]
     }
   ]
 }
