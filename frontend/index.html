@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cf_ai_edge_analyst</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Header -->
+    <header>
+      <div class="header-badge">
+        <span></span>
+        Built on Cloudflare Workers · AI · Workflows · Durable Objects
+      </div>
+      <h1>cf_ai_<span class="accent">edge_analyst</span></h1>
+      <p class="subtitle">AI-powered equity research memos generated at the edge.</p>
+    </header>
+
+    <!-- Error banner -->
+    <div id="error-banner"></div>
+
+    <!-- Input form -->
+    <div class="card" id="input-card">
+      <div class="card-title">New Analysis</div>
+
+      <div class="form-group">
+        <label for="ticker-input">Ticker Symbol</label>
+        <input
+          type="text"
+          id="ticker-input"
+          placeholder="NVDA"
+          maxlength="5"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="ticker-hints">
+          <span class="ticker-chip" data-ticker="NVDA">NVDA</span>
+          <span class="ticker-chip" data-ticker="PLTR">PLTR</span>
+          <span class="ticker-chip" data-ticker="NET">NET</span>
+          <span class="ticker-chip" data-ticker="AAPL">AAPL</span>
+          <span class="ticker-chip" data-ticker="MSFT">MSFT</span>
+          <span class="ticker-chip" data-ticker="AMZN">AMZN</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="focus-input">Focus Prompt <span style="color:var(--text-dim)">(optional)</span></label>
+        <textarea
+          id="focus-input"
+          placeholder="e.g. Focus on AI infrastructure demand and valuation risk"
+        ></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="generate-btn">Generate Memo</button>
+    </div>
+
+    <!-- Status panel -->
+    <div class="card" id="status-panel">
+      <div class="card-title">Generation Status</div>
+      <div class="status-row">
+        <div class="status-dot running" id="status-dot"></div>
+        <div class="status-label" id="status-label">Starting…</div>
+      </div>
+      <div class="progress-steps" id="progress-steps"></div>
+    </div>
+
+    <!-- Memo panel -->
+    <div class="card" id="memo-panel">
+      <div class="card-title">Investment Memo</div>
+      <div class="memo-content" id="memo-content"></div>
+    </div>
+
+    <!-- Chat panel -->
+    <div class="card" id="chat-panel">
+      <div class="card-title">Follow-up Questions</div>
+      <div class="chat-history" id="chat-history"></div>
+      <div class="chat-input-row">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Ask a follow-up question about the memo…"
+          autocomplete="off"
+        />
+        <button class="btn btn-ghost" id="chat-send-btn">Send</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

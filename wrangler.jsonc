@@ -1,0 +1,38 @@
+{
+  "name": "cf-ai-edge-analyst",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Workers AI binding
+  "ai": {
+    "binding": "AI"
+  },
+
+  // Durable Objects — one instance per report
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "REPORT_STATE",
+        "class_name": "ReportStateDO"
+      }
+    ]
+  },
+
+  // Cloudflare Workflows binding
+  "workflows": [
+    {
+      "name": "REPORT_WORKFLOW",
+      "binding": "REPORT_WORKFLOW",
+      "class_name": "ReportWorkflow"
+    }
+  ],
+
+  // DO migrations — required to create the namespace
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["ReportStateDO"]
+    }
+  ]
+}
