@@ -2,6 +2,11 @@
 
 An AI-powered equity research assistant built entirely on Cloudflare's developer platform. Enter a stock ticker, get a structured investment memo — generated step-by-step at the edge using Workers AI, orchestrated by Cloudflare Workflows, and persisted in Durable Objects.
 
+![The eight-step durable workflow, the per-report Durable Object, and the Cloudflare primitives underneath](docs/figure.png)
+
+*A diagram of `src/workflows/reportWorkflow.ts` — the eight boxes are its eight
+`step.do()` checkpoints. Regenerate with `python3 docs/render_figure.py`.*
+
 ---
 
 ## Why This Exists

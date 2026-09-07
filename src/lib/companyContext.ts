@@ -251,47 +251,69 @@ async function fetchFMP(ticker: string, apiKey: string): Promise<FMPResult | nul
 }
 
 // ─── Source: SEC EDGAR ────────────────────────────────────────────────────────
+//
+// Uses the EDGAR full-text search API (efts.sec.gov) instead of downloading
+// the 1MB company_tickers.json. The search API accepts ticker symbols directly,
+// returns lightweight JSON, and requires no CIK lookup step.
+//
+// EDGAR requires a descriptive User-Agent including a contact email per their
+// fair-access policy: https://www.sec.gov/os/accessing-edgar-data
 
-type EdgarTickerEntry = { cik_str: number; ticker: string; title: string };
-type EdgarSubmissions = {
-  filings?: {
-    recent?: {
-      form: string[];
-      filingDate: string[];
-    };
+type EdgarSearchHit = {
+  _source: {
+    form_type?: string;
+    file_date?: string;
+    entity_name?: string;
+  };
+};
+
+type EdgarSearchResponse = {
+  hits?: {
+    hits?: EdgarSearchHit[];
   };
 };
 
 async function fetchEdgar(ticker: string): Promise<RecentFiling[] | null> {
-  // Step 1: Resolve ticker → CIK
-  const tickerMap = await safeFetch<Record<string, EdgarTickerEntry>>(
-    EDGAR_TICKERS_URL,
-    "EDGAR/tickers"
-  );
-  if (!tickerMap) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const twoYearsAgo = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const forms = encodeURIComponent("10-K,10-Q,8-K");
+  const url = `${EDGAR_SUBMISSIONS_BASE}?q=%22${encodeURIComponent(ticker)}%22&forms=${forms}&dateRange=custom&startdt=${twoYearsAgo}&enddt=${today}&_source=form_type,file_date,entity_name&from=0&size=8`;
 
-  const entry = Object.values(tickerMap).find(
-    (e) => e.ticker.toUpperCase() === ticker.toUpperCase()
-  );
-  if (!entry) return null;
+  // EDGAR fair-access policy requires a descriptive User-Agent with contact info
+  let data: EdgarSearchResponse | null = null;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "cf-ai-edge-analyst contact@cf-ai-edge-analyst.dev",
+        "Accept": "application/json",
+      },
+    });
+    if (!res.ok) {
+      console.warn(`[EDGAR] HTTP ${res.status}`);
+      return null;
+    }
+    data = (await res.json()) as EdgarSearchResponse;
+  } catch (err) {
+    console.warn("[EDGAR] fetch failed:", err);
+    return null;
+  }
 
-  const cik = String(entry.cik_str).padStart(10, "0");
+  const hits = data?.hits?.hits;
+  if (!Array.isArray(hits) || hits.length === 0) return null;
 
-  // Step 2: Fetch submission history
-  const submissions = await safeFetch<EdgarSubmissions>(
-    `${EDGAR_SUBMISSIONS_BASE}/CIK${cik}.json`,
-    "EDGAR/submissions"
-  );
-  if (!submissions?.filings?.recent) return null;
-
-  const { form, filingDate } = submissions.filings.recent;
   const relevant = ["10-K", "10-Q", "8-K"];
+  const seen = new Set<string>();
   const filings: RecentFiling[] = [];
 
-  for (let i = 0; i < form.length && filings.length < 6; i++) {
-    if (relevant.includes(form[i])) {
-      filings.push({ type: form[i], date: filingDate[i] });
-    }
+  for (const hit of hits) {
+    const type = hit._source?.form_type;
+    const date = hit._source?.file_date;
+    if (!type || !date || !relevant.includes(type)) continue;
+    const key = `${type}:${date}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    filings.push({ type, date });
+    if (filings.length >= 6) break;
   }
 
   return filings.length > 0 ? filings : null;
